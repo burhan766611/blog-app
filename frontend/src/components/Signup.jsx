@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import API from "../api/axiosConfig";
 import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
@@ -19,7 +19,7 @@ const Signup = () => {
     e.preventDefault();
 
     try {
-      const reslt = await axios.post("http://localhost:3000/addData", { data: formData });
+      const reslt = await API.post("/addData", { data: formData });
       console.log(reslt);
       if( reslt.data.success){
         alert("Signup successful!");

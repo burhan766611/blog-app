@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CommentSection from "./CommentSection";
-import axios from "axios";
+import API from "../api/axiosConfig";
 
 const Index = () => {
   const [postData, setPostData] = useState({
@@ -12,39 +12,43 @@ const Index = () => {
   const [posts, setPosts] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [editPost, setEditPost] = useState(null);
-  // const [comment, setComment] = useState();
 
+  // Fetch posts
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/posts", { withCredentials: true })
-      .then((res) => setPosts(res.data))
-      .catch((err) => console.error("Error fetching posts:", err));
+    const fetchPosts = async () => {
+      try {
+        const res = await API.get("/posts");
+        setPosts(res.data);
+      } catch (err) {
+        console.error("Error fetching posts:", err);
+      }
+    };
+    fetchPosts();
   }, []);
 
+  // Check login status
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/me", { withCredentials: true })
-      .then((res) => {
-        if (res.data.success) {
-          setIsLoggedIn(true);
-        }
-      })
-      .catch(() => {
+    const checkLogin = async () => {
+      try {
+        const res = await API.get("/me");
+        setIsLoggedIn(res.data.success);
+      } catch (err) {
         setIsLoggedIn(false);
-      });
+        console.log(err)
+      }
+    };
+    checkLogin();
   }, []);
 
+  // Handle input change
   const handleChange = (e) => {
     setPostData({ ...postData, [e.target.name]: e.target.value });
   };
 
+  // Delete post
   const handleDelete = async (id) => {
     try {
-      const result = await axios.delete(
-        `http://localhost:3000/postDelete/${id}`,
-        { withCredentials: true }
-      );
-
+      const result = await API.delete(`/postDelete/${id}`);
       if (result.data.success) {
         alert(result.data.message);
         setPosts((prev) => prev.filter((post) => post._id !== id));
@@ -56,6 +60,7 @@ const Index = () => {
     }
   };
 
+  // Edit post
   const handleEdit = (post) => {
     setEditPost(post);
     setPostData({
@@ -65,52 +70,37 @@ const Index = () => {
     });
   };
 
+  // Submit post (add or update)
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       if (editPost) {
-        const result = await axios.put(
-          `http://localhost:3000/postEdit/${editPost._id}`,
-          postData,
-          { withCredentials: true }
-        );
-
+        const result = await API.put(`/postEdit/${editPost._id}`, postData);
         if (result.data.success) {
           setPosts((prev) =>
             prev.map((p) => (p._id === editPost._id ? result.data.post : p))
           );
           alert(result.data.message);
         }
-
         setEditPost(null);
       } else {
-        const result = await axios.post(
-          "http://localhost:3000/addPost",
-          postData,
-          { withCredentials: true }
-        );
-
+        const result = await API.post("/addPost", postData);
         if (result.data.success) {
           setPosts((prev) => [result.data.post, ...prev]);
           alert(result.data.message);
         }
       }
-
       setPostData({ title: "", content: "", image: "" });
     } catch (err) {
       console.log(err);
-      alert("server error");
+      alert("Server error");
     }
   };
 
+  // Logout
   const handleLogout = async () => {
     try {
-      await axios.post(
-        "http://localhost:3000/logout",
-        {},
-        { withCredentials: true }
-      );
+      await API.post("/logout");
       setIsLoggedIn(false);
       alert("Logged out successfully");
     } catch (err) {

@@ -77,7 +77,8 @@ app.post("/addData", async (req, res) => {
 
 app.post("/login", async (req, res) => {
   try {
-    const { data } = req.body;
+    const data  = req.body;
+    console.log(data);
 
     const user = await userModel.findOne({ email: data.email });
     if (!user) {
