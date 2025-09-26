@@ -17,8 +17,15 @@ const port = process.env.PORT || 3000;
 
 const secretKey = process.env.SECRET_KEY;
 
+const uri = process.env.MONGO_URI;
+
+if (!uri) {
+  console.error("MongoDB URI is not defined!");
+  process.exit(1);
+}
+
 mongoose
-  .connect(process.env.MONGO_URI, {
+  .connect(uri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
