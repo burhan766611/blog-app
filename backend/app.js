@@ -37,7 +37,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // your frontend
+    origin: "https://blog-app-frontend.onrender.com", // your frontend
     credentials: true,
   })
 );
