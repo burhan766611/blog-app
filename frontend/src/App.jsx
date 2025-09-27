@@ -1,10 +1,10 @@
-import React, { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
 import Home from "./components/Home";
 import Index from "./components/Index";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { AuthContext } from "../AuthContext";
+import { AuthContext } from "./AuthContext";
 import { useContext } from "react";
 
 function App() {
