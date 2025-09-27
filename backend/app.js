@@ -19,6 +19,11 @@ const secretKey = process.env.SECRET_KEY;
 
 const uri = process.env.MONGO_URI;
 
+const allowedOrigins = [
+  "http://localhost:5173",  // local Vite dev
+  "https://blog-app-1-kvkp.onrender.com", // deployed frontend
+];
+
 if (!uri) {
   console.error("MongoDB URI is not defined!");
   process.exit(1);
@@ -37,10 +42,17 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: "https://blog-app-frontend.onrender.com", // your frontend
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
+
 
 app.get("/dashboard", isLogin, (req, res) => {
   res.json({ message: `Welcome ${req.user.email}!` });
