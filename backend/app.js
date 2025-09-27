@@ -152,7 +152,7 @@ app.get("/me", isLogin, (req, res) => {
   res.json({ success: true, user: req.user });
 });
 
-app.get("/posts", async (req, res) => {
+app.get("/posts", isLogin, async (req, res) => {
   try {
     const posts = await postModel.find().sort({ createdAt: -1 });
     res.json(posts);
