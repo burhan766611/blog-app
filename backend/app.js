@@ -20,7 +20,7 @@ const secretKey = process.env.SECRET_KEY;
 const uri = process.env.MONGO_URI;
 
 const allowedOrigins = [
-  "http://localhost:5173",  // local Vite dev
+  "http://localhost:5173", // local Vite dev
   "https://blog-app-1-kvkp.onrender.com", // deployed frontend
 ];
 
@@ -52,7 +52,6 @@ app.use(
     credentials: true,
   })
 );
-
 
 app.get("/dashboard", isLogin, (req, res) => {
   res.json({ message: `Welcome ${req.user.email}!` });
@@ -96,7 +95,7 @@ app.post("/addData", async (req, res) => {
 
 app.post("/login", async (req, res) => {
   try {
-    const data  = req.body;
+    const data = req.body;
     console.log(data);
 
     const user = await userModel.findOne({ email: data.email });
@@ -116,9 +115,9 @@ app.post("/login", async (req, res) => {
     const token = jwt.sign({ id: user._id, email: user.email }, secretKey);
     res.cookie("token", token, {
       httpOnly: true,
-      sameSite: "lax",
-      secure: false,
-      // maxAge: 60 * 60 * 1000,
+      secure: true, // required on Render (because HTTPS)
+      sameSite: "None", // allow cross-origin cookies
+      maxAge: 60 * 60 * 1000, // 1 hour
     });
 
     res.status(200).json({
@@ -135,7 +134,7 @@ app.post("/login", async (req, res) => {
 
 app.post("/addPost", isLogin, async (req, res) => {
   try {
-    const data  = req.body;
+    const data = req.body;
 
     const post = await postModel.create({
       title: data.title,
@@ -154,50 +153,56 @@ app.get("/me", isLogin, (req, res) => {
 });
 
 app.get("/posts", async (req, res) => {
-    try{
-      const posts = await postModel.find().sort({ createdAt : -1});
-      res.json(posts);
-  } catch (err){
+  try {
+    const posts = await postModel.find().sort({ createdAt: -1 });
+    res.json(posts);
+  } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Error fetching posts" });
   }
-})
+});
 
-app.delete("/postDelete/:id",isLogin, async (req, res) => {
-  try{
-    const {id} = req.params;
+app.delete("/postDelete/:id", isLogin, async (req, res) => {
+  try {
+    const { id } = req.params;
     const post = await postModel.findByIdAndDelete(id);
-    if(post){
-      res.json({success: true, message: "User Deleted Succesfully"});
+    if (post) {
+      res.json({ success: true, message: "User Deleted Succesfully" });
     } else {
-      res.json({success: false, message: "server error"});
+      res.json({ success: false, message: "server error" });
     }
     console.log(post);
   } catch (err) {
     console.log(err);
   }
-})
+});
 
 app.put("/postEdit/:id", isLogin, async (req, res) => {
-  try{
+  try {
     const { id } = req.params;
     const { title, content, image } = req.body;
 
     const updatedPost = await postModel.findByIdAndUpdate(
       id,
       { title, content, image },
-      { new: true } 
+      { new: true }
     );
 
     if (!updatedPost) {
-      return res.status(404).json({ success: false, message: "Post not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Post not found" });
     }
 
-    res.json({ success: true, message: "Post updated successfully", post: updatedPost });
+    res.json({
+      success: true,
+      message: "Post updated successfully",
+      post: updatedPost,
+    });
   } catch (err) {
     console.log(err);
   }
-})
+});
 
 // app.post("/addComment", isLogin, (req, res) => {
 //   const comt = req.body;
