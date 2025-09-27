@@ -1,7 +1,9 @@
-import React from "react";
+import React,{useContext} from "react";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 const Home = () => {
+  const { isLoggedIn } = useContext(AuthContext);
   return (
     <div className="h-screen w-screen flex items-center justify-center bg-gray-100">
       <div className="w-80 bg-white rounded-2xl shadow-xl border-2 border-gray-300 p-8 flex flex-col items-center space-y-6">
@@ -25,17 +27,17 @@ const Home = () => {
         >
           Signup
         </Link>
-        <Link
-          to="/index"
-          className="w-full text-center py-2 rounded-lg text-purple-600 font-medium hover:bg-purple-50 hover:text-purple-800 transition"
-        >
-          Dashboard
-        </Link>
+        {isLoggedIn && (
+          <Link
+            to="/index"
+            className="w-full text-center py-2 rounded-lg text-purple-600 font-medium hover:bg-purple-50 hover:text-purple-800 transition"
+          >
+            Dashboard
+          </Link>
+        )}
       </div>
     </div>
   );
 };
 
 export default Home;
-
-

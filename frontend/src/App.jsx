@@ -4,9 +4,11 @@ import Login from "./components/Login";
 import Home from "./components/Home";
 import Index from "./components/Index";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { AuthContext } from "../AuthContext";
+import { useContext } from "react";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const { isLoggedIn} =  useContext(AuthContext);
   return (
     <>
       <Router>
